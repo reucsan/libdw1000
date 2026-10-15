@@ -128,6 +128,10 @@
 // GPIO control register
 #define GPIO_CTRL 0x26
 #define GPIO_MODE_SUB 0x00
+// GPIO_MODE: GPIO4..6 as EXTPA, EXTTXE and EXTRXE (external PA control)
+#define GPIO_MODE_MSGP4_EXTPA_BIT 14
+#define GPIO_MODE_MSGP5_EXTTXE_BIT 16
+#define GPIO_MODE_MSGP6_EXTRXE_BIT 18
 #define LEN_GPIO_MODE 4
 #define GPIO_DIR_SUB 0x08
 #define LEN_GPIO_DIR 4
@@ -277,6 +281,8 @@
 #define PMSC 0x36
 #define PMSC_CTRL0_SUB 0x00
 #define LEN_PMSC_CTRL0 4
+#define PMSC_TXFSEQ_SUB 0x26
+#define LEN_PMSC_TXFSEQ 2
 #define PMSC_LEDC 0x28
 #define LEN_PMSC_LEDC 4
 

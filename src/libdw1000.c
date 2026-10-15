@@ -1329,6 +1329,25 @@ void dwSetTxPower(dwDevice_t *dev, uint32_t txPower)
 	dev->txPower = txPower;
 }
 
+void dwEnableLargePower(dwDevice_t* dev) {
+	uint32_t gpioMode = 0;
+	dwSpiRead(dev, GPIO_CTRL, GPIO_MODE_SUB, &gpioMode, LEN_GPIO_MODE);
+	gpioMode |= (1ul << GPIO_MODE_MSGP4_EXTPA_BIT) |
+	            (1ul << GPIO_MODE_MSGP5_EXTTXE_BIT) |
+	            (1ul << GPIO_MODE_MSGP6_EXTRXE_BIT);
+	dwSpiWrite(dev, GPIO_CTRL, GPIO_MODE_SUB, &gpioMode, LEN_GPIO_MODE);
+
+	// The PA lines need TX fine grain power sequencing off
+	uint8_t txfseq[LEN_PMSC_TXFSEQ] = {0x00, 0x00};
+	dwSpiWrite(dev, PMSC, PMSC_TXFSEQ_SUB, txfseq, LEN_PMSC_TXFSEQ);
+
+	uint8_t pgdelay = 0xC0;
+	dwSpiWrite(dev, TX_CAL, TC_PGDELAY_SUB, &pgdelay, LEN_TC_PGDELAY);
+
+	uint8_t txPower[LEN_TX_POWER] = {0x1F, 0x1F, 0x1F, 0x1F};
+	dwSpiWrite(dev, TX_POWER, NO_SUB, txPower, LEN_TX_POWER);
+}
+
 void dwAttachSentHandler(dwDevice_t *dev, dwHandler_t handler) {
 	dev->handleSent = handler;
 }
