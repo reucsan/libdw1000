@@ -103,7 +103,9 @@ void* dwGetUserdata(dwDevice_t* dev)
 
 int dwConfigure(dwDevice_t* dev)
 {
-	dwEnableClock(dev, dwClockAuto);
+	// Auto clock selection does not bring up some modules (ESP32 hosts);
+	// select the PLL explicitly
+	dwEnableClock(dev, dwClockPll);
 	delayms(5);
 
 	// Reset the chip
@@ -113,9 +115,11 @@ int dwConfigure(dwDevice_t* dev)
 		dwSoftReset(dev);
 	}
 
-	if (dwGetDeviceId(dev) != 0xdeca0130) {
-		return DW_ERROR_WRONG_ID;
-	}
+	// Give the chip time after the reset; the first read can be stale.
+	// A wrong ID is reported, but the configuration is still written.
+	delayms(20);
+	dwGetDeviceId(dev);
+	const bool wrongId = dwGetDeviceId(dev) != 0xdeca0130;
 
 	// Set default address
 	memset(dev->networkAndAddress, 0xff, LEN_PANADR);
@@ -151,7 +155,7 @@ int dwConfigure(dwDevice_t* dev)
 
 	// Initialize for default configuration (as per datasheet)
 
-	return DW_ERROR_OK;
+	return wrongId ? DW_ERROR_WRONG_ID : DW_ERROR_OK;
 }
 
 void dwManageLDE(dwDevice_t* dev) {
