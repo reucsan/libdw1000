@@ -177,12 +177,14 @@ void dwManageLDE(dwDevice_t* dev) {
 	pmscctrl0[1] = 0x03;
 	otpctrl[0] = 0x00;
 	otpctrl[1] = 0x80;
-	dwSpiWrite(dev, PMSC, PMSC_CTRL0_SUB, pmscctrl0, LEN_PMSC_CTRL0);
+	// Only the two low PMSC_CTRL0 bytes change; leave the upper ones
+	// alone (needed for the LDE load on ESP32 hosts)
+	dwSpiWrite(dev, PMSC, PMSC_CTRL0_SUB, pmscctrl0, 2);
 	dwSpiWrite(dev, OTP_IF, OTP_CTRL_SUB, otpctrl, LEN_OTP_CTRL);
 	delayms(5);
 	pmscctrl0[0] = 0x00;
 	pmscctrl0[1] = 0x02;
-	dwSpiWrite(dev, PMSC, PMSC_CTRL0_SUB, pmscctrl0, LEN_PMSC_CTRL0);
+	dwSpiWrite(dev, PMSC, PMSC_CTRL0_SUB, pmscctrl0, 2);
 }
 
 
